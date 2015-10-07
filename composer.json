@@ -1,0 +1,25 @@
+{
+    "name": "gelembjuk/db",
+    "description": "PHP Package for DB access from PHP. It contains simple common interface and can be used with many DB engines. It is very simple alternative of PDO",
+    "keywords": [
+        "database",
+        "mysql",
+	"abstract database interface"
+    ],
+    "require": {
+        "gelembjuk/logger": "1.*",
+        "gelembjuk/locale": "1.*"
+    },
+    "require-dev":{},
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Roman Gelembjuk",
+            "email": "roman@gelembjuk.com"
+        }
+    ],
+    "autoload": {
+        "psr-0": { "Gelembjuk":"src/" }
+    },
+    "minimum-stability": "stable"
+}
