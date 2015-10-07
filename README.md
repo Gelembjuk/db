@@ -10,13 +10,15 @@ Currently only 2 engines are supported: mysql and mysqli (Gelembjuk\DB\MySQL and
 
 Using composer: [gelembjuk/db](http://packagist.org/packages/gelembjuk/db) ``` require: {"gelembjuk/db": "*"} ```
 
-### Configuration
-
-List of options can differ depending on a DN engine. 
+### Usage
 
 ```php
-$dbsettings = array(
-	'engine' => 'mysql',
+
+require ('vendor/autoload.php');
+
+// simple example to show how to work with 2 DB parelelly in a PHP script
+
+$dbsettings1 = array(
 	'user' => 'dbuser',
 	'password' => 'dbuserpassword',
 	'database' => 'mydb',
@@ -25,32 +27,44 @@ $dbsettings = array(
 	'namescharset' => 'utf8'
 	);
 
-```
+// different DB
+$dbsettings2 = array(
+	'user' => 'dbuser',
+	'password' => 'dbuserpassword',
+	'database' => 'mydb2',
+	'host' => 'localhost',
+	'connectioncharset' => 'utf8',
+	'namescharset' => 'utf8'
+	);
 
-### Usage
+$dbengine1 = new Gelembjuk\DB\MySQL($dbsettings1);
+$dbengine2 = new Gelembjuk\DB\MySQLi($dbsettings2);
+// connection will be established on a first request to a DB
 
-```php
-
-// composer autoloader
-require '../vendor/autoload.php';
-
-$socialnetwork = $_REQUEST['network'];  // this is one of: facebook, google, twitter, linkedin
-
-// create social network login object. The second argument is array of API settings for a social network
-$network = Gelembjuk\Auth\AuthFactory::getSocialLoginObject($socialnetwork,$integrations[$socialnetwork]);
-
-$redirecturl = 'http://'.$_SERVER['HTTP_HOST'].dirname($_SERVER['REQUEST_URI']).'/completelogin.php';
-
-$socialauthurl = $network->getLoginStartUrl($redirecturl);
+class MyTable extends Gelembjuk\DB\Base {
+	public function getUsers() {
+		return $this->getRows('SELECT * FROM users');
+	}
+	public function addUser($name,$email) {
+		$sql = "INSERT INTO users (name,email) VALUES ".
+			"('".$this->quote($name)."','".$this->quote($email)."')";
+		$this->executeQuery();
 		
-// remember the state. it will be used when complete a social login
-$_SESSION['socialloginsate_'.$socialnetwork] = $network->serialize();
+		return getLastInsertedId();
+	}
+}
 
-// this is optional. you can include a network name in your redirect url and then extract
-$_SESSION['socialloginnetwork'] = $socialnetwork;
+$mytable = new MyTable($dbengine1);
 
-header("Location: $socialauthurl",true,301);
-exit;
+$userid1 = $mytable->addUser('User 1','email@gmail.com');
+$userid2 = $mytable->addUser('User 2','email2@gmail.com');
+
+print_r($mytable->getUsers());
+
+// this will do same but with different DB
+$mytable2 = new MyTable($dbengine2);
+
+print_r($mytable2->getUsers());
 
 ```
 

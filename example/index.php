@@ -9,7 +9,7 @@
 // path to your composer autoloader
 require ('vendor/autoload.php');
 
-// imple example to show how to work with 2 DB parelelly in a PHP script
+// simple example to show how to work with 2 DB parelelly in a PHP script
 
 $dbsettings1 = array(
 	'user' => 'dbuser',
