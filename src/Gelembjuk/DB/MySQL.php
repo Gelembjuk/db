@@ -50,7 +50,13 @@ class MySQL implements EngineInterface {
 		$this->connectiontimelimit = ($options['connectiontimelimit'] > 0)?$options['connectiontimelimit']:0;
 		
 		$this->tableprefix = ($options['tableprefix'] != '')?$options['tableprefix']:'';
-
+	}
+	
+	protected function profilerAction($type,$time,$string) {
+		if ($this->application) {
+			return $this->application->profilerAction($type,$time,$string);
+		}
+		return null;
 	}
 	
 	protected function getConnection()
@@ -65,6 +71,7 @@ class MySQL implements EngineInterface {
 			}
 		}
 
+		$connstart = microtime(true);
 		
 		$att=0;
 
@@ -95,6 +102,10 @@ class MySQL implements EngineInterface {
 			mysql_query("SET NAMES '".$this->namescharset."'", $this->connection);
 		}
 
+		$conntime = microtime(true) - $connstart;
+		
+		$this->profilerAction('dbconn',$conntime,"Database connection time $conntime");
+		
 		$this->connectioncreatetime = time();
 
 		return $this->connection;
@@ -112,10 +123,17 @@ class MySQL implements EngineInterface {
 
 	public function getRows($query)
 	{
-		$starttime=time();
+		$connstart = microtime(true);
 
 		$res = mysql_query($query, $this->getConnection());
 
+		// profiling
+		$conntime = microtime(true) - $connstart;
+		
+		$this->profilerAction('dbquery',$conntime,"SQL query execution time $conntime: $query");
+		
+		$connstart = microtime(true);
+		
 		if ($res != NULL) {
 			$array = array();
 
@@ -123,6 +141,11 @@ class MySQL implements EngineInterface {
 				$array[] = $row;
 			}
 			mysql_free_result($res);
+			
+			$conntime = microtime(true) - $connstart;
+		
+			$this->profilerAction('dbquery',$conntime,"SQL query result reading time $conntime: $query");
+			
 			return $array;
 		} else	{
 			throw new Exceptions\DBException(mysql_error(),$query,'query',3);
@@ -131,7 +154,13 @@ class MySQL implements EngineInterface {
 
 
 	public function getRow($query) {
+		$connstart = microtime(true);
+		
 		$result = mysql_query($query, $this->getConnection());
+		
+		$conntime = microtime(true) - $connstart;
+		
+		$this->profilerAction('dbquery',$conntime,"SQL query execution time $conntime: $query");
 		
 		if ($result) {
 			$row = mysql_fetch_assoc($result);
@@ -144,8 +173,14 @@ class MySQL implements EngineInterface {
 	}
 
 	public function getValue($query) {
+		$connstart = microtime(true);
+		
 		$result = mysql_query($query, $this->getConnection());
 
+		$conntime = microtime(true) - $connstart;
+		
+		$this->profilerAction('dbquery',$conntime,"SQL query execution time $conntime: $query");
+		
 		if ($result) {
 			$row = mysql_fetch_row($result);
 			return($row[0]);
@@ -155,7 +190,13 @@ class MySQL implements EngineInterface {
 	}
 
 	public function executeQuery($query) {
+		$connstart = microtime(true);
+		
 		mysql_query($query, $this->getConnection());
+		
+		$conntime = microtime(true) - $connstart;
+		
+		$this->profilerAction('dbquery',$conntime,"SQL query execution time $conntime: $query");
 
 		if(mysql_errno()>0) {
 			throw new Exceptions\DBException(mysql_error(),$query,'execute',6);

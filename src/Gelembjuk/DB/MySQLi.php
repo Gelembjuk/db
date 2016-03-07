@@ -27,6 +27,7 @@ class MySQLi extends MySQL {
 			}
 		}
 
+		$connstart = microtime(true);
 		
 		$att=0;
 
@@ -49,6 +50,10 @@ class MySQLi extends MySQL {
 			mysqli_set_charset($this->connection,$this->connectioncharset);
 		}
 
+		$conntime = microtime(true) - $connstart;
+		
+		$this->profilerAction('dbconn',$conntime,"Database connection time $conntime");
+		
 		$this->connectioncreatetime = time();
 
 		return $this->connection;
@@ -66,9 +71,15 @@ class MySQLi extends MySQL {
 
 	public function getRows($query)
 	{
-		$starttime=time();
+		$connstart = microtime(true);
 
 		$res = mysqli_query($query, $this->getConnection());
+		
+		$conntime = microtime(true) - $connstart;
+		
+		$this->profilerAction('dbquery',$conntime,"SQL query execution time $conntime: $query");
+		
+		$connstart = microtime(true);
 
 		if ($res != NULL) {
 			$array = array();
@@ -77,6 +88,11 @@ class MySQLi extends MySQL {
 				$array[] = $row;
 			}
 			mysqli_free_result($res);
+			
+			$conntime = microtime(true) - $connstart;
+		
+			$this->profilerAction('dbquery',$conntime,"SQL query result reading time $conntime: $query");
+			
 			return $array;
 		} else	{
 			throw new Exceptions\DBException(mysql_error(),$query,'query',3);
@@ -84,7 +100,13 @@ class MySQLi extends MySQL {
 	}
 
 	public function getRow($query) {
+		$connstart = microtime(true);
+		
 		$result = mysqli_query($query, $this->getConnection());
+		
+		$conntime = microtime(true) - $connstart;
+		
+		$this->profilerAction('dbquery',$conntime,"SQL query execution time $conntime: $query");
 		
 		if ($result) {
 			$row = mysqli_fetch_assoc($result);
@@ -97,7 +119,13 @@ class MySQLi extends MySQL {
 	}
 
 	public function getValue($query) {
+		$connstart = microtime(true);
+		
 		$result = mysqli_query($query, $this->getConnection());
+		
+		$conntime = microtime(true) - $connstart;
+		
+		$this->profilerAction('dbquery',$conntime,"SQL query execution time $conntime: $query");
 
 		if ($result) {
 			$row = mysqli_fetch_row($result);
@@ -108,7 +136,13 @@ class MySQLi extends MySQL {
 	}
 
 	public function executeQuery($query) {
+		$connstart = microtime(true);
+		
 		mysqli_query($query, $this->getConnection());
+		
+		$conntime = microtime(true) - $connstart;
+		
+		$this->profilerAction('dbquery',$conntime,"SQL query execution time $conntime: $query");
 
 		if(mysqli_errno()>0) {
 			throw new Exceptions\DBException(mysql_error(),$query,'execute',6);
