@@ -43,7 +43,7 @@ class MySQLi extends MySQL {
 		} while (!$this->connection && $att<4);
 		
 		if ($this->connection === NULL) {
-			throw new Exceptions\DBException('Can not connect to the DB server: '.mysqli_error(),'','connection',1);
+			throw new Exceptions\DBException('Can not connect to the DB server: '.mysqli_connect_error(),'','connection',1);
 		}
 		
 		if ($this->connectioncharset != '') {
@@ -95,7 +95,7 @@ class MySQLi extends MySQL {
 			
 			return $array;
 		} else	{
-			throw new Exceptions\DBException(mysqli_error(),$query,'query',3);
+			throw new Exceptions\DBException(mysqli_error($this->getConnection()),$query,'query',3);
 		}
 	}
 
@@ -114,7 +114,7 @@ class MySQLi extends MySQL {
 
 			return($row);
 		} else {
-			throw new Exceptions\DBException(mysqli_error(),$query,'query',4);
+			throw new Exceptions\DBException(mysqli_error($this->getConnection()),$query,'query',4);
 		}
 	}
 
@@ -131,21 +131,21 @@ class MySQLi extends MySQL {
 			$row = mysqli_fetch_row($result);
 			return($row[0]);
 		} else {
-			throw new Exceptions\DBException(mysqli_error(),$query,'query',5);
+			throw new Exceptions\DBException(mysqli_error($this->getConnection()),$query,'query',5);
 		}
 	}
 
 	public function executeQuery($query) {
 		$connstart = microtime(true);
 		
-		mysqli_query($this->getConnection(), $query);
+		$result = mysqli_query($this->getConnection(), $query);
 		
 		$conntime = microtime(true) - $connstart;
 		
 		$this->profilerAction('dbquery',$conntime,"SQL query execution time $conntime: $query");
 
-		if(mysqli_errno()>0) {
-			throw new Exceptions\DBException(mysqli_error(),$query,'execute',6);
+		if (!$result && mysqli_errno($this->getConnection()) > 0) {
+			throw new Exceptions\DBException(mysqli_error($this->getConnection()),$query,'execute',6);
 		}
 		return  TRUE;
 	}
@@ -155,6 +155,6 @@ class MySQLi extends MySQL {
 	}
 
 	public function quote($s) {
-		return  mysqli_real_escape_string($s,$this->getConnection());
+		return  mysqli_real_escape_string($this->getConnection(),$s);
 	}
 }
