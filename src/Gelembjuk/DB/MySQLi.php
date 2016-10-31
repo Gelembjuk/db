@@ -43,7 +43,7 @@ class MySQLi extends MySQL {
 		} while (!$this->connection && $att<4);
 		
 		if ($this->connection === NULL) {
-			throw new Exceptions\DBException('Can not connect to the DB server: '.mysql_error(),'','connection',1);
+			throw new Exceptions\DBException('Can not connect to the DB server: '.mysqli_error(),'','connection',1);
 		}
 		
 		if ($this->connectioncharset != '') {
@@ -73,7 +73,7 @@ class MySQLi extends MySQL {
 	{
 		$connstart = microtime(true);
 
-		$res = mysqli_query($query, $this->getConnection());
+		$res = mysqli_query($this->getConnection(), $query);
 		
 		$conntime = microtime(true) - $connstart;
 		
@@ -95,14 +95,14 @@ class MySQLi extends MySQL {
 			
 			return $array;
 		} else	{
-			throw new Exceptions\DBException(mysql_error(),$query,'query',3);
+			throw new Exceptions\DBException(mysqli_error(),$query,'query',3);
 		}
 	}
 
 	public function getRow($query) {
 		$connstart = microtime(true);
 		
-		$result = mysqli_query($query, $this->getConnection());
+		$result = mysqli_query($this->getConnection(), $query);
 		
 		$conntime = microtime(true) - $connstart;
 		
@@ -114,14 +114,14 @@ class MySQLi extends MySQL {
 
 			return($row);
 		} else {
-			throw new Exceptions\DBException(mysql_error(),$query,'query',4);
+			throw new Exceptions\DBException(mysqli_error(),$query,'query',4);
 		}
 	}
 
 	public function getValue($query) {
 		$connstart = microtime(true);
 		
-		$result = mysqli_query($query, $this->getConnection());
+		$result = mysqli_query($this->getConnection(), $query);
 		
 		$conntime = microtime(true) - $connstart;
 		
@@ -131,21 +131,21 @@ class MySQLi extends MySQL {
 			$row = mysqli_fetch_row($result);
 			return($row[0]);
 		} else {
-			throw new Exceptions\DBException(mysql_error(),$query,'query',5);
+			throw new Exceptions\DBException(mysqli_error(),$query,'query',5);
 		}
 	}
 
 	public function executeQuery($query) {
 		$connstart = microtime(true);
 		
-		mysqli_query($query, $this->getConnection());
+		mysqli_query($this->getConnection(), $query);
 		
 		$conntime = microtime(true) - $connstart;
 		
 		$this->profilerAction('dbquery',$conntime,"SQL query execution time $conntime: $query");
 
 		if(mysqli_errno()>0) {
-			throw new Exceptions\DBException(mysql_error(),$query,'execute',6);
+			throw new Exceptions\DBException(mysqli_error(),$query,'execute',6);
 		}
 		return  TRUE;
 	}
