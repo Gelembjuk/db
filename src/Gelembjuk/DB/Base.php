@@ -121,4 +121,7 @@ class Base {
 	protected function int($val) {
 		return strval(intval($val));// convert to int but as a string
 	}
+	protected function float($val) {
+        return strval(floatval($val));// convert to int but as a string
+    }
 }
