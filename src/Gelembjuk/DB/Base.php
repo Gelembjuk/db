@@ -122,6 +122,9 @@ class Base {
 		return strval(intval($val));// convert to int but as a string
 	}
 	protected function float($val) {
+        if (strpos($val,'.') === false && strpos($val, ',') > 0) {
+            $val = str_replace(',','.',$val);
+        }
         return strval(floatval($val));// convert to int but as a string
     }
 }
