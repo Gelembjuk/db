@@ -55,7 +55,14 @@ class MySQLi extends MySQL {
 		$this->profilerAction('dbconn',$conntime,"Database connection time $conntime");
 		
 		$this->connectioncreatetime = time();
-
+		
+		foreach ($this->extrainitqueries as $query) {
+            mysqli_query($this->connection, $query);
+            
+            $conntime = microtime(true) - $connstart;
+            $this->profilerAction('dbquery',$conntime,"Init SQL query $conntime: $query");
+		}
+		
 		return $this->connection;
 	}
 

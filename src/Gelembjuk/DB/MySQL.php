@@ -24,6 +24,8 @@ class MySQL implements EngineInterface {
 	protected $connectioncharset = '';
 	protected $namescharset = '';
 	
+	protected $extrainitqueries = [];
+	
 	protected $dbhost = '';
 	protected $dbname = '';
 	protected $dbuser = '';
@@ -50,6 +52,10 @@ class MySQL implements EngineInterface {
 		$this->connectiontimelimit = ($options['connectiontimelimit'] > 0)?$options['connectiontimelimit']:0;
 		
 		$this->tableprefix = ($options['tableprefix'] != '')?$options['tableprefix']:'';
+		
+		if (is_array($options['initqueries'])) {
+            $this->extrainitqueries = $options['initqueries'];
+		}
 	}
 	
 	protected function profilerAction($type,$time,$string) {
