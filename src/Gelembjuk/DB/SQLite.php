@@ -130,6 +130,10 @@ class SQLite implements EngineInterface {
 		
 		$query = $c->prepare($queryStmt);
 		
+		if ($query === false) {
+            throw new Exceptions\DBException($c->lastErrorMsg(),4);
+		}
+		
 		$p = 1;
 		foreach ($blobs as $blob) {
             $query->bindParam($p, $blob, SQLITE3_BLOB);
