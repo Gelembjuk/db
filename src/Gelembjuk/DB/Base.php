@@ -112,7 +112,19 @@ class Base {
 		}
 
 		$this->error($logtext,array('group'=>'dbengine','exception'=>$exception));
-		throw new \Exception($this->_('dboperationerror'));
+
+		if ($this->application->inDebugMode()) {
+			// send as is 
+			throw $exception;
+		}
+		// throw a general error
+		$message = $this->_('dboperationerror');
+
+		if (empty($message)) {
+			$message = 'Database operation error';
+		}
+
+		throw new \Exception($message);
 	}
 	// add prefix to a table name
 	protected function table($table) {

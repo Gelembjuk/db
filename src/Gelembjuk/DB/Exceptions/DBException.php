@@ -10,18 +10,22 @@ class DBException extends \Exception{
 	protected $sql;
 	protected $textcode;
 	
-	public function __construct($message = '', $sql = '' , $textcode = '', $number = 0) {
-		parent::__construct($message,$number);
+	public function __construct($message = '', $sql = '' , $textcode = '', $number = 0) 
+	{
+		parent::__construct($message.' '.$sql, $number);
 		$this->textcode = $textcode;
 		$this->sql = $sql;
 	}
-	public function getSQL() {
+	public function getSQL() 
+	{
 		return $this->sql;
 	}
-	public function getTextCode() {
+	public function getTextCode() 
+	{
 		return $this->textcode;
 	}
-	public function getLogInfo() {
+	public function getLogInfo() 
+	{
 		return 'Error message: '.$this->getMessage().'. Error Code: '.$this->getTextCode().'('.$this->getCode().'). SQL: '.$this->getSQL();
 	}
 }
