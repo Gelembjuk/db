@@ -28,10 +28,16 @@ class Base {
 		$this->application = $application;
 		$this->tableprefix = $this->dbobject->getTablePrefix();
 	}
-	public function init($options) {
+	public function init($options) 
+	{
 	}
-
-	protected function getLastInsertedId() {
+	// Just alias
+	protected function getLastInsertId() 
+	{
+		return $this->getLastInsertedId();
+	}
+	protected function getLastInsertedId() 
+	{
 		try {
 			return $this->dbobject->getLastInsertedId();
 		} catch (\Exception $exception) {
@@ -97,7 +103,15 @@ class Base {
 			$this->processError($exception);
 		}
 	}
-	protected function quote($s) {
+	/**
+	 * Alias for quote but it adds quotes to a string
+	 */
+	protected function string($s)
+	{
+		return '\''.$this->quote($s).'\'';
+	} 
+	protected function quote($s) 
+	{
 		try {
 			return $this->dbobject->quote($s);
 		} catch (\Exception $exception) {
