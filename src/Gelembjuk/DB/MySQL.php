@@ -49,11 +49,11 @@ class MySQL implements EngineInterface {
 		$this->connectioncharset = $options['connectioncharset'];
 		$this->namescharset = $options['namescharset'];
 
-		$this->connectiontimelimit = ($options['connectiontimelimit'] > 0)?$options['connectiontimelimit']:0;
+		$this->connectiontimelimit = $options['connectiontimelimit'] ?? 0;
 		
-		$this->tableprefix = ($options['tableprefix'] != '')?$options['tableprefix']:'';
+		$this->tableprefix = $options['tableprefix'] ?? '';
 		
-		if (is_array($options['initqueries'])) {
+		if (is_array($options['initqueries'] ?? null)) {
             $this->extrainitqueries = $options['initqueries'];
 		}
 	}
