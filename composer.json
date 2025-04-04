@@ -7,8 +7,8 @@
 	"abstract database interface"
     ],
     "require": {
-        "gelembjuk/logger": "1.*",
-        "gelembjuk/locale": "1.*"
+        "gelembjuk/logger": "2.*",
+        "gelembjuk/locale": "2.*"
     },
     "require-dev":{},
     "license": "MIT",
