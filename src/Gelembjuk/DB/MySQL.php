@@ -46,8 +46,8 @@ class MySQL implements EngineInterface {
 		$this->dbuser = $options['user'];
 		$this->dbpassword = $options['password'];
 		
-		$this->connectioncharset = $options['connectioncharset'];
-		$this->namescharset = $options['namescharset'];
+		$this->connectioncharset = $options['connectioncharset'] ?? '';
+		$this->namescharset = $options['namescharset'] ?? '';
 
 		$this->connectiontimelimit = $options['connectiontimelimit'] ?? 0;
 		

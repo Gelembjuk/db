@@ -136,6 +136,15 @@ class MySQLi extends MySQL {
 
 		if ($result) {
 			$row = mysqli_fetch_row($result);
+
+			if ($row === FALSE) {
+				return NULL;
+			}
+
+			if (!is_array($row)) {
+				return NULL;
+			}
+
 			return($row[0]);
 		} else {
 			throw new Exceptions\DBException(mysqli_error($this->getConnection()),$query,'query',5);

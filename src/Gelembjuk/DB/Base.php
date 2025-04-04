@@ -16,17 +16,22 @@ namespace Gelembjuk\DB;
 use Exceptions\DBException as DBException;
 
 class Base {
-	use \Gelembjuk\Logger\ApplicationLogger;
 	use \Gelembjuk\Locale\GetTextTrait;
 	
 	protected $dbobject;
-	protected $application;
+	protected $config;
 	protected $tableprefix;
+	protected \Psr\Log\LoggerInterface $logger;
 
-	public function __construct($dbobject,$application = null) {
+	public function __construct($dbobject,$config = null) 
+	{
 		$this->dbobject = $dbobject;
-		$this->application = $application;
+		$this->config = $config;
 		$this->tableprefix = $this->dbobject->getTablePrefix();
+
+		if ($config && method_exists($config, 'getLogger')) {
+			$this->logger = $config->getLogger();
+		}
 	}
 	public function init($options) 
 	{
@@ -45,7 +50,8 @@ class Base {
 		}
 	}
 
-	protected function executeQuery($sql){
+	protected function executeQuery($sql)
+	{
 		try {
 			$this->dbobject->executeQuery($sql);
 		} catch (\Exception $exception) {
@@ -53,17 +59,20 @@ class Base {
 		}
 	}
 
-	public function getRowById($id) {
+	public function getRowById($id) 
+	{
 		return null;
 	}
-	protected function getValue($sql) {
+	protected function getValue($sql) 
+	{
 		try {
 			return $this->dbobject->getValue($sql);
 		} catch (\Exception $exception) {
 			$this->processError($exception);
 		}
 	}
-	protected function getRow($sql) {
+	protected function getRow($sql) 
+	{
 		if (trim($sql) == '') {
 			return null;
 		}
@@ -74,7 +83,8 @@ class Base {
 		}
 	}
 
-	protected function getRows($sql) {
+	protected function getRows($sql) 
+	{
 		if (trim($sql) == '') {
 			return array();
 		}
@@ -85,7 +95,8 @@ class Base {
 		}
 	}
 
-	public function getEmptyRecord($table) {
+	public function getEmptyRecord($table) 
+	{
 		try {
 			$list = $this->getRows("SHOW COLUMNS FROM $table");
 			$object = array();
@@ -118,16 +129,18 @@ class Base {
 			$this->processError($exception);
 		}
 	}
-	protected function processError($exception) {
+	protected function processError($exception) 
+	{
 		$logtext = $exception->getMessage();
 
 		if ($exception instanceof Exceptions\DBException) {
 			$logtext = $exception->getLogInfo();
 		}
-
-		$this->error($logtext,array('group'=>'dbengine','exception'=>$exception));
-
-		if ($this->application->inDebugMode()) {
+		if ($this->logger) {
+			$this->logger->error($logtext,array('group'=>'dbengine','exception'=>$exception));
+		}
+		
+		if ($this->config && method_exists($this->config, 'inDebugMode') && $this->config->inDebugMode()) {
 			// send as is 
 			throw $exception;
 		}
@@ -141,13 +154,16 @@ class Base {
 		throw new \Exception($message);
 	}
 	// add prefix to a table name
-	protected function table($table) {
+	protected function table($table) 
+	{
 		return $this->tableprefix.$table;
 	}
-	protected function int($val) {
+	protected function int($val) 
+	{
 		return strval(intval($val));// convert to int but as a string
 	}
-	protected function float($val) {
+	protected function float($val) 
+	{
         if (strpos($val,'.') === false && strpos($val, ',') > 0) {
             $val = str_replace(',','.',$val);
         }
